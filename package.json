@@ -1,0 +1,29 @@
+{
+    "name": "iptv",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "description": "Web based IPTV Player",
+    "keywords": [
+        "iptv, player, m3u"
+    ],
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@libs/m3u": "file:libs/m3u",
+        "@tailwindcss/vite": "^4.1.18",
+        "hls.js": "^1.6.15",
+        "solid-js": "^1.9.10",
+        "tailwindcss": "^4.1.18"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.1",
+        "typescript": "~5.9.3",
+        "vite": "^7.2.4",
+        "vite-plugin-solid": "^2.11.10",
+        "vite-tsconfig-paths": "^6.0.3"
+    }
+}

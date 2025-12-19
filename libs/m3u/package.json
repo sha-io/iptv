@@ -1,0 +1,27 @@
+{
+    "name": "@libs/m3u",
+    "version": "1.0.0",
+    "private": "true",
+    "description": "An m3u playlist reader for IPTV",
+    "keywords": [
+        "m3u"
+    ],
+    "license": "MIT",
+    "author": "sha-io",
+    "type": "module",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.1",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3",
+        "vite-plugin-dts": "^4.5.4"
+    }
+}
