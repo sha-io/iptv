@@ -84,38 +84,38 @@ export default function Video(props: VideoProps) {
     createEffect(() => {
         const source = state.src
         if (!source || !Hls.isSupported() || !video) return
+        const videoOptions = {
+            maxBufferLength: 10,
+            maxMaxBufferLength: 15,
+            maxBufferSize: 20 * 1000 * 1000,
+            backBufferLength: 10,
 
+            liveSyncDuration: 3,
+            liveMaxLatencyDuration: 10,
+            liveDurationInfinity: true,
+            lowLatencyMode: true,
+
+
+            startPosition: -1,
+            enableWorker: true,
+
+            abrEwmaFastLive: 3,
+            abrEwmaSlowLive: 9,
+            abrBandWidthFactor: 0.8,
+            abrBandWidthUpFactor: 0.7,
+
+            fragLoadingTimeOut: 20000,
+            fragLoadingMaxRetry: 6,
+            fragLoadingRetryDelay: 1000,
+            fragLoadingMaxRetryTimeout: 64000,
+
+            manifestLoadingTimeOut: 10000,
+            manifestLoadingMaxRetry: 6,
+
+            progressive: true
+        }
         if (!hls) {
-            hls = new Hls({
-                maxBufferLength: 10,
-                maxMaxBufferLength: 15,
-                maxBufferSize: 20 * 1000 * 1000,
-                backBufferLength: 10,
-
-                liveSyncDuration: 3,
-                liveMaxLatencyDuration: 10,
-                liveDurationInfinity: true,
-                lowLatencyMode: true,
-
-
-                startPosition: -1,
-                enableWorker: true,
-
-                abrEwmaFastLive: 3,
-                abrEwmaSlowLive: 9,
-                abrBandWidthFactor: 0.8,
-                abrBandWidthUpFactor: 0.7,
-
-                fragLoadingTimeOut: 20000,
-                fragLoadingMaxRetry: 6,
-                fragLoadingRetryDelay: 1000,
-                fragLoadingMaxRetryTimeout: 64000,
-
-                manifestLoadingTimeOut: 10000,
-                manifestLoadingMaxRetry: 6,
-
-                progressive: true
-            });
+            hls = new Hls(videoOptions);
 
             hls.attachMedia(video)
         }
@@ -124,6 +124,28 @@ export default function Video(props: VideoProps) {
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
             if (isPlaying()) video.play()
         })
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+                switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        console.log('Network error, trying to recover...');
+                        hls?.startLoad();
+                        break;
+
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        console.log('Media error, attempting recovery...');
+                        hls?.recoverMediaError();
+                        break;
+
+                    default:
+                        console.log('Unrecoverable error, destroying HLS instance...');
+                        hls?.destroy();
+                        break;
+                }
+            }
+        });
+
 
     })
 
