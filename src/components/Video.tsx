@@ -1,5 +1,5 @@
 import Play from "../assets/play.svg"
-import Pause from "../assets/Pause.svg"
+import Pause from "../assets/pause.svg"
 import Loading from "../assets/loading.svg"
 
 import { createEffect, createSignal, onCleanup, splitProps } from "solid-js"
