@@ -1,6 +1,6 @@
-import Play from "../assets/play.svg"
-import Pause from "../assets/pause.svg"
-import Loading from "../assets/loading.svg"
+import Play from "../../assets/play.svg"
+import Pause from "../../assets/pause.svg"
+import Loading from "../../assets/loading.svg"
 
 import { createEffect, createSignal, onCleanup, splitProps } from "solid-js"
 import Hls from "hls.js"
@@ -116,7 +116,6 @@ export default function Video(props: VideoProps) {
         }
         if (!hls) {
             hls = new Hls(videoOptions);
-
             hls.attachMedia(video)
         }
 
@@ -124,28 +123,6 @@ export default function Video(props: VideoProps) {
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
             if (isPlaying()) video.play()
         })
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) {
-                switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        console.log('Network error, trying to recover...');
-                        hls?.startLoad();
-                        break;
-
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        console.log('Media error, attempting recovery...');
-                        hls?.recoverMediaError();
-                        break;
-
-                    default:
-                        console.log('Unrecoverable error, destroying HLS instance...');
-                        hls?.destroy();
-                        break;
-                }
-            }
-        });
-
 
     })
 

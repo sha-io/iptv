@@ -1,6 +1,6 @@
 import { createSignal, onMount } from "solid-js"
-import Navigator from "./components/Navigator"
-import Video from "./components/Video"
+import Navigator from "./components/navigator/Navigator"
+import Video from "./components/video/Video"
 import { loadM3U, decodeM3U, type M3UChannel, type M3UPlaylist } from "@libs/m3u"
 
 export default function App() {
@@ -19,6 +19,7 @@ export default function App() {
     const data = decodeM3U(response ?? "");
     setData(data);
   });
+
   return (
     <section class="w-screen h-screen">
       {<Navigator data={data()} changeChannel={changeChannel} mountPoint={() => mountPoint()} />}
