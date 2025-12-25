@@ -27,10 +27,10 @@ function Channel(props: ChannelProps) {
                 disabled={isHighlighted?.()}
                 class="w-full h-full flex justify-between items-center px-4 py-2 text-white/80 font-light text-sm font-mono tracking-wide leading-normal transition-colors duration-200"
                 classList={{
-                    "bg-amber-50/10": isFocused?.() && !isHighlighted?.(),
+                    "bg-[#44475A]/90": isFocused?.() && !isHighlighted?.(),
                     "cursor-pointer": !isHighlighted?.(),
                     "disabled:cursor-auto": isHighlighted?.(),
-                    "bg-amber-50/40": isHighlighted?.(),
+                    "bg-[#44475A]/40": isHighlighted?.(),
                 }}
                 onclick={() => onclick(data)}
                 onmousemove={() => onmousemove(props.key)}

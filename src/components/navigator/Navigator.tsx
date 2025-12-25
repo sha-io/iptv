@@ -27,7 +27,7 @@ function Navigator(props: NavigatorProps) {
     const [state] = splitProps(props, ["data", "changeChannel", "mountPoint"]);
 
     const [inputRef, setInputRef] = createSignal<HTMLInputElement | null>(null)
-    const [isVisible, setIsVisible] = createSignal(true);
+    const [isOpen, setIsOpen] = createSignal(true);
     const [search, setSearch] = createSignal("");
     const [activeID, setActiveID] = createSignal("");
 
@@ -49,11 +49,11 @@ function Navigator(props: NavigatorProps) {
             case "KeyK":
                 if (e.ctrlKey) {
                     e.preventDefault()
-                    setIsVisible(!isVisible())
+                    setIsOpen(!isOpen())
                 }
                 break;
             case "Escape":
-                setIsVisible(false)
+                setIsOpen(false)
                 break;
             default:
                 break;
@@ -61,7 +61,7 @@ function Navigator(props: NavigatorProps) {
     }
 
     createEffect(() => {
-        if (isVisible())
+        if (isOpen())
             inputRef()?.focus()
     })
 
@@ -69,7 +69,7 @@ function Navigator(props: NavigatorProps) {
     onCleanup(() => window.addEventListener("keydown", keyboardController))
 
     return (
-        <Show when={isVisible()}>
+        <Show when={isOpen()}>
             <Portal mount={state.mountPoint?.()}>
                 <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] max-w-lg h-[70vh] bg-black/60 backdrop-blur-lg shadow-2xl overflow-hidden flex flex-col z-50 font-mono outline-2 outline-white/30">
                     <Search ref={el => setInputRef(el)} oninput={e => setSearch(e.value)} />

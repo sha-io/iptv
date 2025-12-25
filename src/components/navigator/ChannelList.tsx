@@ -14,13 +14,14 @@ interface ChannelListProps {
     onChannelSelect: (channel: M3UChannel) => void;
 }
 
+// Move state upwards to persist unmounts
 const DEFAULT_OVERSCAN = 50;
+const [highlighted, setHighlighted] = createSignal("");
 
 function ChannelList(props: ChannelListProps) {
     const overscan = () => props.overscan ?? DEFAULT_OVERSCAN;
     const [scrollTop, setScrollTop] = createSignal(0);
     const [viewportHeight, setViewportHeight] = createSignal(0)
-    const [highlighted, setHighlighted] = createSignal("");
     const [listRef, setListRef] = createSignal<HTMLUListElement | undefined>(undefined)
     const { focus, setFocus, move } = useListNavigator(props.channels, props.cellHeight, scrollTop, setScrollTop, viewportHeight)
 
@@ -92,35 +93,29 @@ function ChannelList(props: ChannelListProps) {
             onScroll={e => setScrollTop(e.currentTarget.scrollTop)}
         >
             <div
-                style={{
-                    height: `${props.channels().length * props.cellHeight}px`,
-                    position: "relative",
-                    width: "100%",
-                }}
+                class="relative w-full"
+                style={{ height: `${props.channels().length * props.cellHeight}px` }}
             >
                 <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        transform: `translateY(${offsetY()}px)`,
-                        "will-change": "transform",
-                    }}
+                    class="absolute top-0 left-0 w-full"
+                    style={{ transform: `translateY(${offsetY()}px)` }}
                 >
                     <For each={getVisibleChannels()}>
-                        {(item, i) => (
-                            <Channel
-                                id={item.url}
-                                data={item}
-                                key={i()}
-                                height={props.cellHeight}
-                                isHighlighted={() => highlighted() === item.url}
-                                isFocused={() => focus() === i()}
-                                onclick={channelClickController}
-                                onmousemove={channelFocusController}
-                            />
-                        )}
+                        {(item, i) => {
+                            const index = () => getDisplayBounds()[0] + i()
+                            return (
+                                <Channel
+                                    id={item.url}
+                                    data={item}
+                                    key={index()}
+                                    height={props.cellHeight}
+                                    isHighlighted={() => highlighted() === item.url}
+                                    isFocused={() => focus() === index()}
+                                    onclick={channelClickController}
+                                    onmousemove={channelFocusController}
+                                />
+                            )
+                        }}
                     </For>
                 </div>
             </div>
