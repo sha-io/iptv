@@ -4,6 +4,7 @@ import Loading from "../../assets/loading.svg"
 
 import { createEffect, createSignal, onCleanup, splitProps } from "solid-js"
 import Hls from "hls.js"
+import useVideoPlayer from "./useVideoPlayer"
 
 interface VideoProps {
     src: string
@@ -13,7 +14,6 @@ interface VideoProps {
 
 export default function Video(props: VideoProps) {
     let video: HTMLVideoElement | undefined
-    let hls: Hls | undefined
     let overlayTimeout: number
     let clickTimeout: number | null = null
 
@@ -21,10 +21,11 @@ export default function Video(props: VideoProps) {
     const DOUBLE_CLICK_DELAY = 150
 
     const [state] = splitProps(props, ["src", "logo", "ref"])
+    const [src, setSrc] = createSignal(state.src)
     const [isPlaying, setIsPlaying] = createSignal(false)
     const [isHovering, setIsHovering] = createSignal(false)
     const [loading, setLoading] = createSignal(false)
-    const [, setContainerRef] = createSignal<HTMLElement | undefined>(undefined)
+    const [containerRef, setContainerRef] = createSignal<HTMLElement | undefined>(undefined)
 
     const handleClick = () => {
         if (clickTimeout !== null) {
@@ -82,52 +83,18 @@ export default function Video(props: VideoProps) {
     }
 
     createEffect(() => {
-        const source = state.src
-        if (!source || !Hls.isSupported() || !video) return
-        const videoOptions = {
-            maxBufferLength: 10,
-            maxMaxBufferLength: 15,
-            maxBufferSize: 20 * 1000 * 1000,
-            backBufferLength: 10,
+        setSrc(state.src);
+    });
 
-            liveSyncDuration: 3,
-            liveMaxLatencyDuration: 10,
-            liveDurationInfinity: true,
-            lowLatencyMode: true,
+    createEffect(() => {
+        if (!Hls.isSupported() || !video || !src()) return
 
-
-            startPosition: -1,
-            enableWorker: true,
-
-            abrEwmaFastLive: 3,
-            abrEwmaSlowLive: 9,
-            abrBandWidthFactor: 0.8,
-            abrBandWidthUpFactor: 0.7,
-
-            fragLoadingTimeOut: 20000,
-            fragLoadingMaxRetry: 6,
-            fragLoadingRetryDelay: 1000,
-            fragLoadingMaxRetryTimeout: 64000,
-
-            manifestLoadingTimeOut: 10000,
-            manifestLoadingMaxRetry: 6,
-
-            progressive: true
-        }
-        if (!hls) {
-            hls = new Hls(videoOptions);
-            hls.attachMedia(video)
-        }
-
-        hls.loadSource(state.src)
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            if (isPlaying()) video.play()
+        const { client } = useVideoPlayer(video, src)
+        client.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.play()
+            setIsPlaying(true)
         })
 
-    })
-
-    onCleanup(() => {
-        hls?.destroy()
     })
 
     return (
@@ -156,15 +123,18 @@ export default function Video(props: VideoProps) {
                 onmouseleave={clearOverlay}>
                 <div class="flex justify-between w-full">
                     <span class="inline-flex items-center">
-                        {loading() ? <img src={Loading} class="size-10 animate-spin" /> : <img
-                            onclick={e => {
-                                e.stopPropagation()
-                                togglePlay()
-                            }}
-                            src={isPlaying() ? Pause : Play}
-                            alt={isPlaying() ? "play-button" : "pause-button"}
-                            class="size-10 cursor-pointer"
-                        />}
+                        {loading() ?
+                            <img src={Loading} class="size-10 animate-spin" />
+                            :
+                            <img
+                                onclick={e => {
+                                    e.stopPropagation()
+                                    togglePlay()
+                                }}
+                                src={isPlaying() ? Pause : Play}
+                                alt={isPlaying() ? "play-button" : "pause-button"}
+                                class="size-10 cursor-pointer"
+                            />}
                     </span>
                     <span class="size-15 inline-flex items-end self-end justify-end">
                         {state.logo && <img src={state.logo} alt="channel-logo" class="w-full h-full object-contain inline-flex items-end justify-end" />}
