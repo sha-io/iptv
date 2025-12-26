@@ -61,6 +61,11 @@ function ChannelList(props: ChannelListProps) {
                 e.preventDefault();
                 move(-1);
                 break;
+            case "Enter":
+                const channel = props.channels()[focus()]
+                props.onChannelSelect(channel)
+                setHighlighted(channel.url)
+                break;
         }
     };
 
